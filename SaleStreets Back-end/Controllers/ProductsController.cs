@@ -33,20 +33,34 @@ namespace SaleStreets_Back_end.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> AddProduct(IEnumerable<IFormFile> imgs, [FromForm] ProductDto product)
+
+        public async Task<IActionResult> AddProduct([FromForm] ProductDto product)
         {
-            if(!ModelState.IsValid || !imgs.Any() || imgs==null)
+             IEnumerable<IFormFile> imgs = null;
+         
+
+            var form =  await this.HttpContext.Request.ReadFormAsync();
+
+            imgs = form.Files;
+     
+
+            
+            if(!ModelState.IsValid || !imgs.Any()|| imgs==null)
             {
+                var y = await this.HttpContext.Request.ReadFormAsync();
+               
+                var x = this.Request;
                 return BadRequest(new ProductModel() { Success = false, Message = "all fields must be valid" });
 
              }
             //string userId = await _tokenService.GetUserIdFromRequest(this.Request);
             string userId = await _tokenService.GetUserIdFromRequest(this.HttpContext);
+
             var productaddModel = await _productService.AddProductAsync(product, imgs, userId);
 
             if(productaddModel.Success)
             {
-                return Ok(productaddModel); 
+                return Ok(new { success = true , data=productaddModel.Product?.Id??0 }); 
             }
 
             return BadRequest(productaddModel);
@@ -80,7 +94,7 @@ namespace SaleStreets_Back_end.Controllers
         }
 
         [Authorize]
-        [HttpDelete]
+        [HttpDelete("{productId}")]
         public async Task<IActionResult> DeleteProduct(int productId)
         {
             var userId = await _tokenService.GetUserIdFromRequest(this.HttpContext);
@@ -107,6 +121,14 @@ namespace SaleStreets_Back_end.Controllers
             }
 
             return Ok(new { success = true, message = "" }); 
+        }
+
+        [Authorize]
+        [HttpGet("ownedProducts")]
+        public async Task<IActionResult> getOwnedProducts()
+        {
+            var products = await _productService.getOwnedProducts(this.HttpContext);
+            return Ok( products );
         }
 
         [HttpGet("{productId}/Images/{imgNum}")]

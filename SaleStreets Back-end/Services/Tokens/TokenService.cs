@@ -69,7 +69,7 @@ namespace SaleStreets_Back_end.Services.Tokens
         {
             try
             {
-            var token = context.Request.Headers["Authorization"][0].Split(' ')[1];
+            var token = context.Request.Cookies["Authorization"]?.Split(' ')[1]??null;
             var claims = await this.GetClaimsAsync(token);
             var id = claims.FirstOrDefault
                 ((claim) => { return claim.Type == "Id"; })?.Value ?? null;

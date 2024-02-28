@@ -99,5 +99,15 @@ namespace SaleStreets_Back_end.Services.Authorization
             }
 
         }
+
+        public void AddAuthCookie(HttpResponse  Response,string token )
+        {
+            var cookieOptions = new CookieOptions() {
+                SameSite=SameSiteMode.None ,HttpOnly =true,    Expires  = DateTime.Now.AddDays(13),       
+              Secure=true };
+
+            Response.Cookies.Append("Authorization", $"Bearer {token}", cookieOptions);
+
+        }
     }
 }

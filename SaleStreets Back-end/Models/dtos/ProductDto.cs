@@ -13,6 +13,7 @@ namespace SaleStreets_Back_end.Models.dtos
         public string Description { get; set; }
 
 
+
         [Required]
         [MaxLength(256)]
         public string Location { get; set; }

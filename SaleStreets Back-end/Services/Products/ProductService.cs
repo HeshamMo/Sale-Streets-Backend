@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using SaleStreets_Back_end.Models;
 using SaleStreets_Back_end.Models.dtos;
+using SaleStreets_Back_end.Services.Tokens;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace SaleStreets_Back_end.Services.Products
 {
@@ -11,13 +14,14 @@ namespace SaleStreets_Back_end.Services.Products
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager; 
         private readonly IImageService _imgService;
-
-        public ProductService(ApplicationDbConext dbContext, UserManager<AppUser> userManager, IImageService imgService, RoleManager<IdentityRole> roleManager)
+        private readonly ITokenService _tokenService;
+        public ProductService(ApplicationDbConext dbContext, UserManager<AppUser> userManager, IImageService imgService, RoleManager<IdentityRole> roleManager, ITokenService tokenService)
         {
             _context = dbContext;
             _userManager = userManager;
             _imgService = imgService;
             _roleManager = roleManager;
+            _tokenService = tokenService;
         }
 
         public async Task<ProductModel> AddProductAsync(
@@ -158,9 +162,41 @@ namespace SaleStreets_Back_end.Services.Products
             page--;
             var result = await _context.Products
                 .Select(p => new { p.Id, p.PublishedAt, p.Title, p.Description, p.Location })
+                .Where(p => p.Title.Contains(keyword) || p.Description.Contains(keyword) )
                 .Skip(page * 6).Take(6)
                 .ToListAsync();
             
+            var productsDtos = new List<SearchProductsDto>();
+            foreach(var item in result)
+            {
+                SearchProductsDto spd = new SearchProductsDto()
+                {
+                    Id = item.Id,
+                    Title = item.Title,
+                    Description = item.Description,
+                    Location = item.Location,
+                    PublishedAt = item.PublishedAt,
+                };
+
+                productsDtos.Add(spd);
+            }
+
+            return productsDtos;
+        }
+
+        public async Task<IEnumerable<SearchProductsDto>> getOwnedProducts(HttpContext context)
+        {
+            var userId = await _tokenService.GetUserIdFromRequest(context);
+            if(userId is null)
+            {
+                return null;
+            }
+
+            var result = await _context.Products
+                .Where(p=>p.Publisher.Id == userId)
+            .Select(p => new { p.Id, p.PublishedAt, p.Title, p.Description, p.Location })
+              .ToListAsync();
+
             var productsDtos = new List<SearchProductsDto>();
             foreach(var item in result)
             {

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SaleStreets_Back_end;
 using SaleStreets_Back_end.Configurations;
 using SaleStreets_Back_end.Models;
 using SaleStreets_Back_end.Services;
@@ -57,6 +58,7 @@ builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    
 }).AddJwtBearer(options =>
 {
 
@@ -78,14 +80,25 @@ builder.Services.AddAuthentication(options =>
     // only in development
     options.RequireHttpsMetadata= false;
     options.TokenValidationParameters= validationParams;
+    options.Events = new JwtBearerEvents()
+    {
+        OnMessageReceived = (context) =>
+        {
+            context.Token = context.Request.Cookies["Authorization"]?.Split(' ')[1]??null;
+            return Task.CompletedTask;
+        }
+    };
 }); 
+
 var app = builder.Build();
 
+//app.UseMiddleware<Middleware>();
 app.UseCors(o =>
 {
-    o.AllowAnyHeader();
-    o.AllowAnyMethod();
-    o.AllowAnyOrigin();
+    o.WithOrigins("http://localhost:4200")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
 });
 
 // Configure the HTTP request pipeline.

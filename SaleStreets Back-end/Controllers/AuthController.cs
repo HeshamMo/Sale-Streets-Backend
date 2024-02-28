@@ -5,6 +5,7 @@ using SaleStreets_Back_end.Models;
 using SaleStreets_Back_end.Models.Auth;
 using SaleStreets_Back_end.Services.Authorization;
 using SaleStreets_Back_end.Services.Tokens;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 
@@ -16,7 +17,7 @@ namespace SaleStreets_Back_end.Controllers
     {
         private readonly IAuthService _authService;
         private readonly ITokenService _tokenService;
-        
+
         public AuthController(IAuthService authService, ITokenService tokenService)
         {
             _authService = authService;
@@ -38,6 +39,7 @@ namespace SaleStreets_Back_end.Controllers
             AuthModel result = await _authService.RegisterAsync(model);
             if(result.Success)
             {
+                _authService.AddAuthCookie(this.Response, result.Token);
                 return Ok(result);
             }
             else
@@ -48,7 +50,7 @@ namespace SaleStreets_Back_end.Controllers
 
 
         [HttpPost("login")]
-        public async Task<IActionResult> LoginAsync(LogInModel model)
+        public async Task<IActionResult> LoginAsync([FromBody] LogInModel model)
         {
             if(!ModelState.IsValid)
             {
@@ -62,9 +64,9 @@ namespace SaleStreets_Back_end.Controllers
             var result = await _authService.LoginAsync(model);
             if(result.Success)
             {
-           //     Response.Headers.Authorization = 
+                //     Response.Headers.Authorization = 
 
-
+                _authService.AddAuthCookie(this.Response, result.Token); 
                 return Ok(result);
             }
             else
@@ -74,22 +76,8 @@ namespace SaleStreets_Back_end.Controllers
         }
 
 
-        [AllowAnonymous]
-        [HttpGet("test")]
-        public async Task<IActionResult> tt()
-        {
-            Product p = new Product() { 
-                Id=10000,
-                Title="gg"
-                
-            };
 
-            var obj = new Object();
-            obj = p;
 
-            return Ok(obj);
-
-        }
 
 
     }

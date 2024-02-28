@@ -15,7 +15,8 @@ namespace SaleStreets_Back_end.Services.Products
 
         public Task<IEnumerable<SearchProductsDto>> SearchProductsAsync(string keyword  , int page);
 
+        public Task<IEnumerable<SearchProductsDto>> getOwnedProducts(HttpContext context);
+
         public bool CheckProductPublisher(Product product, string userId);
     }
 }
-

@@ -10,7 +10,7 @@ namespace SaleStreets_Back_end.Services.Authorization
         Task<AuthModel> LoginAsync(LogInModel model); 
 
         Task<AuthModel> AddToRoleAsync(AddToRoleModel model);
-
+        public void AddAuthCookie(HttpResponse Response, string token);
 
     }
 }
