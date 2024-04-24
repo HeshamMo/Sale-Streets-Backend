@@ -30,10 +30,14 @@ namespace SaleStreets_Back_end.Models
         public string Location { get; set; }
 
         [Required]
+        public int Price { get; set; }
+
+        [Required]
         [JsonIgnore]
         public virtual AppUser Publisher { get; set; }
 
-      
+
+
         [Required]
         public virtual List<Image> Images { get; set; }
        

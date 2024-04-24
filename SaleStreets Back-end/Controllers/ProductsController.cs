@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
 using SaleStreets_Back_end.Models;
@@ -12,6 +13,7 @@ using SaleStreets_Back_end.Models.dtos;
 using SaleStreets_Back_end.Services;
 using SaleStreets_Back_end.Services.Products;
 using SaleStreets_Back_end.Services.Tokens;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace SaleStreets_Back_end.Controllers
 {
@@ -50,6 +52,7 @@ namespace SaleStreets_Back_end.Controllers
                 var y = await this.HttpContext.Request.ReadFormAsync();
                
                 var x = this.Request;
+
                 return BadRequest(new ProductModel() { Success = false, Message = "all fields must be valid" });
 
              }
@@ -77,8 +80,8 @@ namespace SaleStreets_Back_end.Controllers
 
             var products = await _productService.SearchProductsAsync(keyword, page);
 
-            return Ok(products); 
-}
+            return Ok(new { success =true   , data = products }) ; 
+            }
         
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProduct(int id)
@@ -124,13 +127,33 @@ namespace SaleStreets_Back_end.Controllers
         }
 
         [Authorize]
-        [HttpGet("ownedProducts")]
-        public async Task<IActionResult> getOwnedProducts()
+        [HttpGet("ownedProducts/{page}")]
+        public async Task<IActionResult> getOwnedProducts(int page)
         {
-            var products = await _productService.getOwnedProducts(this.HttpContext);
+            if( page <= 0)
+            {
+                return BadRequest(new { success = false, data = new { }, message = "Invalid Arguments" });
+            }
+
+            var products = await _productService.getOwnedProducts(this.HttpContext , page);
             return Ok( products );
         }
 
+        [Authorize]
+        [HttpGet("ownedProducts")]
+        public async Task<IActionResult> SearchOwnedPoducts([FromQuery]string keyword , [FromQuery] int page)
+        {
+            var result = await _productService.SearchOwnedProducts(this.HttpContext, keyword , page);
+
+            return Ok(new {success = true , data=result});
+        }
+        [HttpGet("Home")]
+        public async Task<IActionResult> LatestProducts([FromQuery] int page)
+        {
+            var result = await _productService.getLatestProducts(page);
+
+            return Ok(new { success = true ,data = result }); 
+        }
         [HttpGet("{productId}/Images/{imgNum}")]
         public async Task<IActionResult> GetProductImage(int productId , int imgNum)
         {

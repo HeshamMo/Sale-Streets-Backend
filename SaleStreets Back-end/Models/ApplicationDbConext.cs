@@ -25,7 +25,6 @@ namespace SaleStreets_Back_end.Models
 
 
         public virtual DbSet<Product> Products { get; set; }
-        public virtual DbSet<Category> Categories { get; set; }
 
         public virtual DbSet<Image> Images { get; set; }
     }

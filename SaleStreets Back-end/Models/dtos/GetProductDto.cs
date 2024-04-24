@@ -21,8 +21,8 @@ namespace SaleStreets_Back_end.Models.dtos
    
      
         public  string Publisher { get; set; }
-
-
+        [Required]
+        public int Price { get; set; }
         public int NumOfImgs { get; set; }
 
 

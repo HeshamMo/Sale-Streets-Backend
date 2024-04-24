@@ -297,6 +297,9 @@ namespace SaleStreets_Back_end.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("PublishedAt")
                         .HasColumnType("datetime2");
 

@@ -12,8 +12,8 @@ using SaleStreets_Back_end.Models;
 namespace SaleStreets_Back_end.Migrations
 {
     [DbContext(typeof(ApplicationDbConext))]
-    [Migration("20231208082552_updating_product")]
-    partial class updating_product
+    [Migration("20240228135552_productUpdates")]
+    partial class productUpdates
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -298,6 +298,9 @@ namespace SaleStreets_Back_end.Migrations
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("PublishedAt")
                         .HasColumnType("datetime2");

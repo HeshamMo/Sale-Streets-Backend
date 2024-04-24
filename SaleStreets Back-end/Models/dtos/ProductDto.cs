@@ -17,8 +17,10 @@ namespace SaleStreets_Back_end.Models.dtos
         [Required]
         [MaxLength(256)]
         public string Location { get; set; }
-        
 
+
+        [Required]
+        public int Price { get; set; }
     }
 
 }
